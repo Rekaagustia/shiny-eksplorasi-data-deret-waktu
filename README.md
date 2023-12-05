@@ -30,7 +30,10 @@ Pola musiman muncul apabila deret dipengaruhi oleh faktor-faktor musiman, misaln
 fluktuasi acak dalam data yang  tidak  dapat  dijelaskan  oleh  tren,  musiman,  atau  siklus.  Fluktuasi  ini  bisa disebabkan oleh faktor-faktor acak atau faktor tak terduga lainnya.
 
 Berikut adalah contoh pola data deret waktu :
-![Pola Data](https://github.com/Rekaagustia/shiny-eksplorasi-data-deret-waktu/assets/39205545/6b84b8ff-e0c7-414d-9659-19187274c91d)
+
+<div align="center">
+<img width="500" alt="Pola Data" src="https://github.com/Rekaagustia/shiny-eksplorasi-data-deret-waktu/assets/39205545/6b84b8ff-e0c7-414d-9659-19187274c91d">
+
 
 
 
