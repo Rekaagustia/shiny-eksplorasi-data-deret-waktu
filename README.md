@@ -17,16 +17,21 @@ Deret waktu (Time Series) adalah sekumpulan data pengamatan yang diukur selama k
 
 ## :scroll: Pola Data Deret Waktu
 Menampilkan pola data deret waktu yang terdiri dari:
+<div align="justify">
 - Trend
+  
 Tren merupakan perubahan jangka panjang baik naik maupun turun dalam data. Dalam pembicaraan tentang tren kita harus memperhatikan berapa banyak data yang ada dan juga penilain kita terhadap definisi jangka panjang. Sebagai contoh peubah-peubah keadaan cuaca biasanya memberikan variasi siklus pada periode yang sangat panjang, misalkan 75 tahun. Jika kita hanya punya data untuk 20 tahun saja, maka pola osilasi jangka panjang ini akan terlihat sebagai tren.
-
+<div align="justify">
 - Siklus
+  
 Pola siklus muncul apabila data dipengaruhi fluktuasi jangka panjang yang biasanya berbentuk osilasi, misalnya gelombang sinus. Gejala-gejala fisika seperti gelombang tsunami yang terjadi setiap 100 tahun sekali, jumlah titik matahari Wolfer ( ¨ Wolfer sunspot¨) biasanya membentuk suatu siklus. Perbedaan utama pola musiman dan siklus terletak pada panjang dan periodenya. Pada musiman pola cenderung memiliki panjang konstan dan terjadi berulang pada periode teratur; namun, pada siklus pola ini memiliki panjang yang bervariasi dan magnitudo yang juga bervariasi.
-
+ <div align="justify">
 - Seasonal
+   
 Pola musiman muncul apabila deret dipengaruhi oleh faktor-faktor musiman, misalnya kuartalan, bulanan, harian, dan tahunan
-
+ <div align="justify">
 - Random (fluktuasi tidak beraturan)
+   
 fluktuasi acak dalam data yang  tidak  dapat  dijelaskan  oleh  tren,  musiman,  atau  siklus.  Fluktuasi  ini  bisa disebabkan oleh faktor-faktor acak atau faktor tak terduga lainnya.
 
 Berikut adalah contoh pola data deret waktu :
