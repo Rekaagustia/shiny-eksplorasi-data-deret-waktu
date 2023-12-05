@@ -15,23 +15,25 @@ shinyServer(function(input, output) {
     
     # reading in the data from the API
     data_kurs <- read_xlsx("C:/Users/Sofia/Downloads/kurs.xlsx")
+    data_penduduk <- read_xlsx("C:/Users/Sofia/OneDrive/Documents/Semester 3/Eksplorasi dan Visualisasi Data/Dashboard EVD/penduduk.xlsx")
     
     # need to convert the dates to Date class in order to use scale_x_data
     Date_kurs_class <- as.Date(data_kurs$Tanggal)
+    Date_penduduk_class <- as.Date(data_penduduk$Tanggal)
     
     if(input$type == "Data Trend"){
       
-      ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
+      ggplot(data_penduduk, aes(x = Date_penduduk_class, y = Jumlah, group = 1)) +
         geom_line(color = "DarkBlue") + 
-        xlab("Periode") +
-        ylab("Kurs Dollar") +
+        xlab("Tahun") +
+        ylab("Jumlah Penduduk") +
         # spreads out the x values and lanels them by their respective months and dates
-        scale_x_date(date_breaks = "3 months", date_labels =  "%b %Y") +
+        scale_x_date(date_breaks = "5 year", date_labels =  "%b %Y") +
         # makes the labels slanted by 45 degrees
         theme_classic() +
         theme(axis.text.x = element_text(angle = -45, vjust = 0)) +
-        ggtitle("Kurs Rupiah Terhadap Dollar")
-    } else if(input$type == "Input Mandiri"){
+        ggtitle("Jumlah Penduduk Dunia")
+    } else if(input$type == "Data Fluktuatif"){
       
       ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
         geom_line(color = "DarkGreen") + 
