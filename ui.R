@@ -1,4 +1,5 @@
 library(shiny)
+library(shinydashboard)
 library(dygraphs)
 
 #-----------------UI--------------------------#
@@ -9,6 +10,8 @@ shinyUI(navbarPage(
   "Dashboard Eksplorasi Data Deret Waktu",
   
   # first tab panel
+  
+  # second tab panel
   tabPanel("Time Series Plot",
            # Sidebar inputs
            sidebarLayout(
@@ -28,7 +31,7 @@ shinyUI(navbarPage(
               # textInput("type",
                          #   label = "Enter Type of Stock Data (1-5):"),
                selectInput("type", label = "Pilih Pola data", 
-                           choices = c("Input Mandiri", "Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" ))
+                           choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" ))
              ),
              
              # Shows first plot from server file
@@ -37,8 +40,8 @@ shinyUI(navbarPage(
            )
   ),
   
-  # second tab panel
-  tabPanel("Forcast Plot",
+  # third tab panel
+  tabPanel("Forecast Plot",
            sidebarLayout(
              sidebarPanel(
                # first argument is the name of the input(doesn't really matter i guess)
