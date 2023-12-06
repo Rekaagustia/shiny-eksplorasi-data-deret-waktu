@@ -22,7 +22,6 @@ shinyServer(function(input, output) {
   # Live Chart
   output$myPlot <- renderPlot({
     
-    # reading in the data from the API
     data_kurs <- read_xlsx("C:/Users/Sofia/Downloads/kurs.xlsx")
     data_penduduk <- read_xlsx("C:/Users/Sofia/OneDrive/Documents/Semester 3/Eksplorasi dan Visualisasi Data/Dashboard EVD/penduduk.xlsx")
     
@@ -81,7 +80,6 @@ shinyServer(function(input, output) {
   })
   
   # second plot
-  # must use renderDygraph instead of renderPlot
   output$dygraph <- renderDygraph({
     
     data <- data_kurs <- read_xlsx("C:/Users/Sofia/Downloads/kurs.xlsx")
