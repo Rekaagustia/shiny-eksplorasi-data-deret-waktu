@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(dygraphs)
+library(plotly)
 
 #-----------------UI--------------------------#
 
@@ -12,6 +13,13 @@ shinyUI(navbarPage(
   # first tab panel
   
   # second tab panel
+  
+  tabPanel("Definisi",
+           fluidPage(
+             textOutput("text")
+             )
+           ),
+  
   tabPanel("Time Series Plot",
            # Sidebar inputs
            sidebarLayout(
@@ -30,37 +38,35 @@ shinyUI(navbarPage(
                          value = "2023-10-30"),
               # textInput("type",
                          #   label = "Enter Type of Stock Data (1-5):"),
-               selectInput("type", label = "Pilih Pola data", 
+               selectInput("tipe", label = "Pilih Pola data", 
                            choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" ))
              ),
+             conditionalPanel(
+               condition = "input.data == 'Data Trend'",
+               sliderInput(inputId = "slider.n", label = "Pilih ukuran data", min = 10, max = 300, value = 100)
+             )),
              
              # Shows first plot from server file
              mainPanel(
                plotOutput("myPlot"))
-           )
-  ),
+           ),
   
   # third tab panel
   tabPanel("Forecast Plot",
            sidebarLayout(
              sidebarPanel(
-               # first argument is the name of the input(doesn't really matter i guess)
-               # the second argument is the title of the slider or select input that you will see
-             #  textInput("company2", 
-              #           label = "Enter a company stock symbol:",
-               #          "IBM"),
                dateInput("start2", 
-                         label = "Enter start date for your analysis:",
-                         value = "2017-05-26"),
+                         label = "Tanggal awal analisis:",
+                         value = "2019-01-01"),
                dateInput("end2", 
-                         label = "Enter end date for your analysis:",
-                         value = "2020-06-02"),
-               numericInput("type2",
-                            label = "Enter Type of Stock Data (1-5):",
-                            value = 1),
+                         label = "Tanggal akhir analisis:",
+                         value = "2023-01-01"),
+               selectInput("type2",
+                            label = "Pilih pola data:",
+                           choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" )),
                checkboxInput("showgrid", label = "Show Grid", value = TRUE),
                numericInput("predict",
-                            label = "Enter number of days to predict:",
+                            label = "Masukkan banyaknya prediksi:",
                             value = 30),
              ),
              
