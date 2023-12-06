@@ -6,10 +6,19 @@ library(xts)
 library(forecast)
 library(lubridate)
 library(readxl)
+library(TSA)
+library(plotly)
 
 
 shinyServer(function(input, output) {
   
+  #first tab
+  output$text <- renderText({
+    "Penjelasan Analisis Deret Waktu
+    Deret waktu (Time Series) adalah sekumpulan data pengamatan yang diukur selama kurun waktu tertentu. Jenis data ini sering kita jumpai dalam kehidupan sehari-hari, karena data dikumpulkan pada interval waktu tertentu, seperti harian, mingguan, atau bulanan. Dari data yang terkumpul terlihat adanya pola. Dalam time series, pola dibagi menjadi empat yaitu. tren, pola siklus,musiman dan random (fluktuasi tidak beraturan)."
+  })  
+  
+  # second tab
   # Live Chart
   output$myPlot <- renderPlot({
     
@@ -21,7 +30,7 @@ shinyServer(function(input, output) {
     Date_kurs_class <- as.Date(data_kurs$Tanggal)
     Date_penduduk_class <- as.Date(data_penduduk$Tanggal)
     
-    if(input$type == "Data Trend"){
+    if(input$tipe == "Data Trend"){
       
       ggplot(data_penduduk, aes(x = Date_penduduk_class, y = Jumlah, group = 1)) +
         geom_line(color = "DarkBlue") + 
@@ -33,22 +42,20 @@ shinyServer(function(input, output) {
         theme_classic() +
         theme(axis.text.x = element_text(angle = -45, vjust = 0)) +
         ggtitle("Jumlah Penduduk Dunia")
-    } else if(input$type == "Data Fluktuatif"){
       
-      ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
-        geom_line(color = "DarkGreen") + 
-        xlab("Periode") +
-        ylab("Kurs Dollar") +
-        # spreads out the x values and lanels them by their respective months and dates
-        scale_x_date(date_breaks = "3 months", date_labels =  "%b %Y") +
+    } else if(input$tipe == "Data Fluktuatif"){
+      ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) + geom_line(color = "Red")+
+     # plot_ly(data_kurs, x= data_kurs$Tanggal, y = data_kurs$Terakhir, type = 'scatter', mode = 'lines')
+        xlab("Periode") + ylab("Kurs Dollar") + 
+          scale_x_date(date_breaks = "3 months", date_labels =  "%b %Y") +
         # makes the labels slanted by 45 degrees
         theme_classic() +
         theme(axis.text.x = element_text(angle = -45, vjust = 0)) +
         ggtitle("Kurs Rupiah Terhadap Dollar")
       
-    } else if(input$type == 3){
+    } else if(input$tipe == "Data Musiman"){
       
-      ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
+      ggplot(tempdub, xlab="Tahun",ylab="Temperatur",) +
         geom_line(color = "DarkBlue") + 
         xlab("Periode") +
         ylab("Kurs Dollar") +
@@ -58,19 +65,7 @@ shinyServer(function(input, output) {
         theme_classic() +
         theme(axis.text.x = element_text(angle = -45, vjust = 0)) +
         ggtitle("Kurs Rupiah Terhadap Dollar")
-    } else if(input$type == 4){
-      
-      ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
-        geom_line(color = "DarkBlue") + 
-        xlab("Periode") +
-        ylab("Kurs Dollar") +
-        # spreads out the x values and lanels them by their respective months and dates
-        scale_x_date(date_breaks = "3 months", date_labels =  "%b %Y") +
-        # makes the labels slanted by 45 degrees
-        theme_classic() +
-        theme(axis.text.x = element_text(angle = -45, vjust = 0)) +
-        ggtitle("Kurs Rupiah Terhadap Dollar")
-    } else if(input$type == 5){
+    } else if(input$tipe == "Data Siklus"){
       
       ggplot(data_kurs, aes(x = Date_kurs_class, y = Terakhir, group = 1)) +
         geom_line(color = "DarkBlue") + 
@@ -89,7 +84,7 @@ shinyServer(function(input, output) {
   # must use renderDygraph instead of renderPlot
   output$dygraph <- renderDygraph({
     
-    data <- get_data(from = input$start2, to = input$end2, stock_symbol = input$company2, view_type = input$type2, api_key = "Q86JK3PHWQIELR2K")
+    data <- data_kurs <- read_xlsx("C:/Users/Sofia/Downloads/kurs.xlsx")
     
     new_dat <- data %>%
       arrange(Dates)
@@ -100,7 +95,7 @@ shinyServer(function(input, output) {
     inds <- seq(start_date, end_date, by = "day")
     
     uni_data <- new_dat %>%
-      select(Stock_data)
+      select(data)
     
     zoo.obj <- zoo(uni_data, inds)
     
