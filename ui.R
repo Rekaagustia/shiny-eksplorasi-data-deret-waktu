@@ -11,33 +11,23 @@ shinyUI(navbarPage(
   "Dashboard Eksplorasi Data Deret Waktu",
   
   # first tab panel
-  
-  # second tab panel
-  
-  tabPanel("Definisi",
+    tabPanel("Definisi",
            fluidPage(
              textOutput("text")
-             )
-           ),
+           )),
   
-  tabPanel("Time Series Plot",
+  
+  # second tab panel
+    tabPanel("Time Series Plot",
            # Sidebar inputs
            sidebarLayout(
              sidebarPanel(
-               # first argument is the name of the input(doesn't really matter i guess)
-               # the second argument is the title of the input that you will see
-               
-               #textInput("company", 
-                      #   label = "Enter a company stock symbol:",
-                       #  "IBM"),
                dateInput("start", 
                          label = "Tanggal Awal Analisis:",
                          value = "2019-01-01"),
                dateInput("end", 
                          label = "Tanggal Akhir Analisis:",
                          value = "2023-10-30"),
-              # textInput("type",
-                         #   label = "Enter Type of Stock Data (1-5):"),
                selectInput("tipe", label = "Pilih Pola data", 
                            choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" ))
              ),
@@ -72,7 +62,6 @@ shinyUI(navbarPage(
              
              # Shows second plot from server file
              mainPanel(
-               # need to use dygraphOutput because it is interactive and from a special package
                dygraphOutput("dygraph"))
            )
   )
