@@ -41,6 +41,7 @@ shinyUI(navbarPage(
         tags$li("Data Random(Fluktuatif tak beraturan"),
         tags$p("Fluktuasi acak dalam data yang tidak dapat dijelaskan oleh tren, musiman, atau siklus. Fluktuasi ini bisa disebabkan oleh faktor-faktor acak atau faktor tak terduga lainnya.")
       ),
+      
     )
   ),
   # second tab panel
@@ -49,98 +50,102 @@ shinyUI(navbarPage(
            sidebarLayout(
              sidebarPanel(
                fluidRow(
-             column(6, selectInput(inputId = "data", label = "Pilih Data",
-                                   choices = c("Unggah Data", 
-                                               "Masukan Mandiri"))
+                 column(6, selectInput(inputId = "data", label = "Pilih Data",
+                                       choices = c("Unggah Data", 
+                                                   "Masukan Mandiri"))
+                 ),
+                 #Upload File
+                 column(6, conditionalPanel(
+                   condition = "input.data == 'Unggah Data'",
+                   fileInput(inputId = 'chosen_file', 
+                             label = 'Unggah File CSV',
+                             accept = c('text/csv',
+                                        'text/comma-separated-values,text/plain',
+                                        '.csv'),
+                             multiple = FALSE)
+                 ))), 
+               actionButton("loadBtn", "Tampilkan Plot"),
+               #  tableOutput("uploadData"),
+               
+               #Upload mandiri
+               fluidRow(
+                 column(12, conditionalPanel(
+                   condition = "input.data == 'Masukan Mandiri'",
+                   rHandsontableOutput(outputId = "tabelle"),
+                   actionButton("save",label = "Save Data")
+                 ))
+               ),
+               # ------ Display Table ------ #
+               fluidRow(
+                 card(
+                   card_header(h5(HTML("<b>Tabel Data yang Digunakan</b>"), 
+                                  style="text-align:center")),
+                   height = 380,
+                   style = "resize:vertical;",
+                   card_body(
+                     max_height = 380,
+                     tableOutput("show_tbl")
+                   )
+                 )
+               ),
+               
+               # ------ Set Used Variables ------ #
+               fluidRow(
+                 column(6, uiOutput('iv')), # Set X-Variable
+                 column(6, uiOutput('dv'))  # Set Y-Variable
+               ),
+               
+               # ----- Refresh Button
+               conditionalPanel(
+                 condition = "input.data != 'Input Mandiri'",
+                 actionButton("refresh", "Refresh")
+               ),
+               
+               # ----- Pilih Pola Data
+               selectInput("tipe", label = "Pilih Pola data", 
+                           choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" )),
+               dateInput("start", 
+                         label = "Tanggal Awal Analisis:",
+                         value = "2019-01-01"),
+               dateInput("end", 
+                         label = "Tanggal Akhir Analisis:",
+                         value = "2023-10-30"),
+               sliderInput("slider.n", label = "Smooth Trend", min = 1, max = 50, value = 30)
              ),
-             #Upload File
-             column(6, conditionalPanel(
-               condition = "input.data == 'Unggah Data'",
-               fileInput(inputId = 'chosen_file', 
-                         label = 'Choose CSV File',
-                         accept = c('text/csv',
-                                    'text/comma-separated-values,text/plain',
-                                    '.csv'))
-             ))),
-             
-           #Upload mandiri
-           fluidRow(
-             column(12, conditionalPanel(
-               condition = "input.data == 'Masukan Mandiri'",
-               rHandsontableOutput(outputId = "tabelle"),
-               actionButton("save",label = "Save Data")
-             ))
-           ),
-           # ------ Display Table ------ #
-           fluidRow(
-             DT::dataTableOutput("show_tbl", width = "100%")
-           ),
-           # ------ Set Used Variables ------ #
-           fluidRow(
-             column(6, uiOutput('iv')), # Set X-Variable
-             column(6, uiOutput('dv'))  # Set Y-Variable
-           ),
-           # ----- Input Mandiri
-           conditionalPanel(
-             condition = "input.data == 'Masukan Mandiri'",
-             textOutput(outputId = "caption"),
-             sliderInput(inputId = "slider.x", label = "Atur rentang X", min = -100, max = 100, value = c(-10, 10)),
-             sliderInput(inputId = "slider.y", label = "Atur rentang Y", min = -100, max = 100, value = c(-10, 10)),
-             actionButton("reset", "Reset")
-           ),
-           
-           # ----- Refresh Button
-           conditionalPanel(
-             condition = "input.data != 'Input Mandiri'",
-             actionButton("refresh", "Refresh")
-           ),
-           
-           # ----- Pilih Pola Data
-           dateInput("start", 
-                     label = "Tanggal Awal Analisis:",
-                     value = "2019-01-01"),
-           dateInput("end", 
-                     label = "Tanggal Akhir Analisis:",
-                     value = "2023-10-30"),
-           selectInput("tipe", label = "Pilih Pola data", 
-                       choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" )),
-           sliderInput("slider.n", label = "Smooth Trend", min = 0.1, max = 3, value = c(1, 1.5))
-           ),
-  
-          mainPanel(
-            plotlyOutput("myPlot")
-            )
-          )
+
+             mainPanel(
+               plotlyOutput("uploadData"),
+               plotlyOutput("myPlot")
+             )
+           )
   ),
-           
-           # third tab panel
-           tabPanel("Forecast Plot",
-                    sidebarLayout(
-                      sidebarPanel(
-                        dateInput("start2", 
-                                  label = "Tanggal awal analisis:",
-                                  value = "2019-01-01"),
-                        dateInput("end2", 
-                                  label = "Tanggal akhir analisis:",
-                                  value = "2023-01-01"),
-                        selectInput("type2",
-                                    label = "Pilih pola data:",
-                                    choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" )),
-                        checkboxInput("showgrid", label = "Show Grid", value = TRUE),
-                        numericInput("predict",
-                                     label = "Masukkan banyaknya prediksi:",
-                                     value = 30),
-                      ),
-                      
-                      # Shows second plot from server file
-                      mainPanel(
-                        dygraphOutput("dygraph"))
-                    )
+
+  # third tab panel
+  tabPanel("Forecast Plot",
+           sidebarLayout(
+             sidebarPanel(
+               dateInput("start2", 
+                         label = "Tanggal awal analisis:",
+                         value = "2019-01-01"),
+               dateInput("end2", 
+                         label = "Tanggal akhir analisis:",
+                         value = "2023-01-01"),
+               selectInput("type2",
+                           label = "Pilih pola data:",
+                           choices = c("Data Trend", "Data Musiman ", "Data Siklus","Data Fluktuatif" )),
+               checkboxInput("showgrid", label = "Show Grid", value = TRUE),
+               numericInput("predict",
+                            label = "Masukkan banyaknya prediksi:",
+                            value = 30),
+             ),
+             
+             # Shows second plot from server file
+             mainPanel(
+               dygraphOutput("dygraph"))
            )
   )
 )
-
-
+),
 #-----------------FOOTER-----------------#
 footer = dashboardFooter(
   left = "by Kelompok 2",
