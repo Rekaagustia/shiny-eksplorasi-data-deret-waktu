@@ -1,123 +1,187 @@
 library(shiny)
-library(shinydashboard)
-library(dygraphs)
-library(plotly)
-library(DT)
-library(DBI)
-library(bslib)
-library(tidyverse)
-library(shinythemes)
-library(shinydashboardPlus)
-library(bs4Dash)
+library(ggplot2)
 library(dplyr)
-library(shinyjs)
-library(data.table)
-library(rhandsontable)
-#-----------------UI--------------------------#
-shinyUI(navbarPage(
-  title = "Eksplorasi Data Deret Waktu",
-  collapsible = TRUE,
-  tabPanel(
-    title = "Definisi",
-    fluidRow(
-      tags$br(),
-      tags$ h2("Pengertian Data Deret Waktu"),
-      tags$p("Deret waktu (Time Series) adalah sekumpulan data pengamatan yang diukur selama kurun waktu tertentu. Jenis data ini sering kita jumpai dalam kehidupan sehari-hari, karena data dikumpulkan pada interval waktu tertentu, seperti harian, mingguan, atau bulanan. Dari data yang terkumpul terlihat adanya pola. Dalam time series, pola dibagi menjadi empat yaitu. tren, pola siklus,musiman dan random (fluktuasi tidak beraturan).")
-    ),
-    fluidRow(
-      tags$br(),
-      tags$ h2("Pola Data Deret Waktu"),
-      tags$p("Menampilkan pola data deret waktu yang terdiri dari:"),
-      tags$ol(
-        tags$li("Data Tren"),
-        tags$p("Tren merupakan perubahan jangka panjang baik naik maupun turun dalam data. Dalam pembicaraan tentang tren kita harus memperhatikan berapa banyak data yang ada dan juga penilain kita terhadap definisi jangka panjang. Sebagai contoh peubah-peubah keadaan cuaca biasanya memberikan variasi siklus pada periode yang sangat panjang, misalkan 75 tahun. Jika kita hanya punya data untuk 20 tahun saja, maka pola osilasi jangka panjang ini akan terlihat sebagai tren."),
-        tags$p("Contoh data tren adalah jumlah penduduk, pertumbuhan tinggi pohon,jumlah pengguna internet, dan ketersediaan sumber daya alam ."),
-        tags$br(),
-        tags$li("Data Siklus"),
-        tags$p("Pola siklus muncul apabila data dipengaruhi fluktuasi jangka panjang yang biasanya berbentuk osilasi, misalnya gelombang sinus. Gejala-gejala fisika seperti gelombang tsunami yang terjadi setiap 100 tahun sekali, jumlah titik matahari Wolfer ( ¨ Wolfer sunspot¨) biasanya membentuk suatu siklus. Perbedaan utama pola musiman dan siklus terletak pada panjang dan periodenya. Pada musiman pola cenderung memiliki panjang konstan dan terjadi berulang pada periode teratur; namun, pada siklus pola ini memiliki panjang yang bervariasi dan magnitudo yang juga bervariasi."),
-        tags$br(),
-        tags$li("Data Seasonal"),
-        tags$p("Pola musiman muncul apabila deret dipengaruhi oleh faktor-faktor musiman, misalnya kuartalan, bulanan, harian, dan tahunan."),
-        tags$p("Contoh data seasonal adalah penjualan peralatan sekolah, produksipadi, penjualan tiket wisata."),
-        tags$br(),
-        tags$li("Data Random (fluktuatif tak beraturan)"),
-        tags$p("Fluktuasi acak dalam data yang tidak dapat dijelaskan oleh tren, musiman, atau siklus. Fluktuasi ini bisa disebabkan oleh faktor-faktor acak atau faktor tak terduga lainnya."),
-        tags$p("Contoh data random adalah inflasi, harga jual saham dan harga emas.")
-        ),
-    )
-  ),
-  # second tab panel
-  tabPanel("Time Series Plot",
-           # Sidebar inputs
-           sidebarLayout(
-             sidebarPanel(
-               fluidRow(
-                 column(6, selectInput(inputId = "data", label = "Pilih Data",
-                                       choices = c("Masukan Mandiri", 
-                                                   "Contoh Dataset")),
-                        ),
-                 #Upload File
-                 column(6, conditionalPanel(
-                   condition = "input.data == 'Masukkan Mandiri'",
-                   fileInput(inputId = 'chosen_file', 
-                             label = 'Unggah File CSV',
-                             accept = c('text/csv',
-                                        'text/comma-separated-values,text/plain',
-                                        '.csv'),
-                             multiple = FALSE)
-                 ))), 
-               actionButton("loadBtn", "Tampilkan Plot"),
-               #  tableOutput("uploadData"),
-               
-               # ------ Display Table ------ #                      
+library(dygraphs)
+library(xts)
+library(forecast)
+library(lubridate)
+library(readxl)
+library(TSA)
+library(datasets)
+library(plotly)
 
-               
-               # ------ Set Used Variables ------ #
-               fluidRow(
-                 column(6, uiOutput('iv')), # Set X-Variable
-                 column(6, uiOutput('dv'))  # Set Y-Variable
-               ),
-               
+#------------------server---------------------#
 
-               # ----- Pilih Pola Data
-               selectInput("tipe", label = "Jenis Pola data", 
-                           choices = c("Data Trend", "Data Musiman", "Data Siklus","Data Fluktuatif" )),
-               sliderInput("slider.n", label = "Smooth Trend", min = 1, max = 50, value = 30)
-             ),
-
-             mainPanel(
-               plotlyOutput("myPlot"),
-               plotlyOutput("uploadData")
-             )
-           )
-  ),
-
-# third tab panel
-  tabPanel("Forecast Plot",
-           sidebarLayout(
-             sidebarPanel(
-               sliderInput("n",
-                           "Rentang Waktu",
-                           value = c(30, 80),
-                           min = 1,
-                           max = 257
-               ),
-               # days for prediction ahead
-               numericInput("arm", "Banyaknya Peramalan", value = 10),
-               
-               # add options for prediction method
-               radioButtons("model", "Pilih Model",
-                            choices = c("ARIMA"),
-                            choiceValues = "ARIMA")
-               
-             ),
-             
-             # Show a plot of the generated distribution
-             mainPanel(
-               plotOutput("trendPlot")
-               
-             )
-           )
-  )
-)
-)
+  #first tab
+  shinyServer(function(input, output) {
+    #First tab 
+    # ------------ Definisi
+    
+    #Second tab
+    # ------------- Time Series Plot
+    
+    # ------------- Menu Upload Mandiri
+    data <- reactiveVal(NULL)
+    observeEvent(input$chosen_file, {
+      req(input$chosen_file)
+      
+      # Membaca file CSV
+      data_read <- read.csv(input$chosen_file$datapath)
+      data(data_read)
+    })
+    
+    
+    # -------------- Menampilkan Plot Upload Mandiri
+    observeEvent(input$loadBtn, {
+      req(data())
+      output$uploadData <- renderPlotly({
+        req(data())
+        if (!is.null(data()$XColumn) && !is.null(data()$YColumn)) {
+          plot_ly(data(), x = ~Date, y = ~General, type = 'scatter', mode = 'lines')
+        } else {
+          plot_ly(data()) 
+        }
+      })
+    })
+  #------------- Tabel Upload
+  data <- reactiveVal(NULL)
+  observeEvent(input$loadBtn, {
+    req(input$chosen_file)
+    
+    # Membaca file CSV
+    data_read <- read.csv(input$chosen_file$datapath)
+    
+    # Simpan data di reactiveVal
+    data(data_read)
+  })
+  # output$uploadData <- renderTable({
+  #    req(data())
+  #    data()
+  #    })
+  
+  uploaded_df <- reactive({
+    inFile <- input$chosen_file
+    ext <- tools::file_ext(inFile$datapath)
+    req(inFile)
+    validate(need(ext =="csv", "Silahkan unggah berkas csv"))
+    readData <- read.csv(inFile$datapath, header = TRUE)
+    readData
+  })
+  
+  myData <- reactive({
+    req(input$data)
+    # ---------- Example Dataset ---------- #
+    if(input$data == "Contoh Dataset"){
+      return(as.data.frame(selected_df()))
+    }
+    # ---------- Upload the Dataset ---------- #
+    else if(input$data == "Masukkan Mandiri"){
+      return(as.data.frame(uploaded_df()))  
+    }
+  })
+  
+  output$show_tbl = renderTable(myData(),
+                                options = list(scrollX = TRUE))
+  #------------------Menampilkan Plot Upload Mandiri
+  
+  output$uploadData <- renderPlotly({
+    req(data())
+    data()
+    plot_ly(data())
+  })
+  
+  #------------------Pola Time Series
+  
+  output$myPlot <- renderPlotly({
+    
+    # reading in the data from the API
+    data_kurs <- read_xlsx("C:/Users/Lenovo/Documents/IPB/fix/Eksplorasi dan Visualisasi Data/kurs.xlsx")
+    data_penduduk <- read_xlsx("C:/Users/Lenovo/Documents/IPB/fix/Eksplorasi dan Visualisasi Data/penduduk.xlsx")
+    data_seasonal<- read_xlsx("C:/Users/Lenovo/Documents/IPB/fix/Eksplorasi dan Visualisasi Data/data_seasonal.xlsx")
+    data_siklus<- read_xlsx("C:/Users/Lenovo/Documents/IPB/fix/Eksplorasi dan Visualisasi Data/data siklus.xlsx")
+    
+    # need to convert the dates to Date class in order to use scale_x_data
+    Date_kurs_class <- as.Date(data_kurs$Tanggal)
+    Date_penduduk_class <- as.Date(data_penduduk$Tanggal)
+    
+    #--slider coba
+    #    autoplot(ts(data_kurs[input$n[1]:input$n[2], "Close"])) +
+    #      ggtitle("Data Kurs Rupiah Terhadap Dollar")
+    #    end = dim(stock)[1]
+    #    start = end - 100
+    
+    if(input$tipe == "Data Trend"){
+      p1 <- plot_ly(data_penduduk, x= data_penduduk$Tanggal, y = data_penduduk$Jumlah, type = 'scatter', mode = 'lines', marker = list(color = 'red'))
+      p1 <- p1 %>% layout(title = "Jumlah Penduduk Dunia",
+                          xaxis = list(title = "Tahun"),
+                          yaxis = list (title = "Jumlah Penduduk"))
+      bins <- seq(min(data_penduduk$Tanggal), max(data_penduduk$Tanggal), length.out <- input$slider.n+1)
+      ggplotly(p1, x = ~Tanggal, y = ~Jumlah, breaks = bins)
+    }  
+    else if(input$tipe == "Data Musiman"){
+      p2 <- plot_ly(data_seasonal, x= data_seasonal$Time, y = data_seasonal$Temperature_change, type = 'scatter', mode = 'lines', marker = list(color = 'blue'))
+      p2 <- p2 %>% layout(title = "Temperature Change at Nottingham, 1920-1939",
+                          xaxis = list(title = "Year"),
+                          yaxis = list (title = "Temperature Change (°F)"))
+      #bins <- seq(min(data_seasonal$Time), max(data_seasonal$Time), length.out <- input$slider.n+1)
+      ggplotly(p2, x = ~Time, y = ~Temperature_change, breaks = bins)
+      
+    }
+    else if(input$tipe == "Data Siklus"){
+      p3 <- plot_ly(data_siklus, x= data_siklus$Time, y = data_siklus$Temperature, type = 'scatter', mode = 'lines', marker = list(color = 'green'))
+      p3 <- p3 %>% layout(title = "Temperatures at Nottingham, 1920-1939",
+                          xaxis = list(title = "Year"),
+                          yaxis = list (title = "Temperature (°F)"))
+      bins <- seq(min(data_siklus$Time), max(data_siklus$Time), length.out <- input$slider.n+1)
+      ggplotly(p3, x = ~Time, y = ~Temperature, breaks = bins)
+      
+    }
+    else if(input$tipe == "Data Fluktuatif"){
+      p4 <- plot_ly(data_kurs, x= data_kurs$Tanggal, y = data_kurs$Terakhir, type = 'scatter', mode = 'lines', marker = list(color = 'blue'))
+      p4 <- p4 %>% layout(title = "Kurs Rupiah Terhadap Dolar",
+                          xaxis = list(title = "Tahun"),
+                          yaxis = list (title = "Kurs Dollar"))
+      ggplotly(p4, smoothnes = input$slider.n)
+    }
+    
+  })
+  
+  #--------------------Smooth Trend
+  
+  output$PolaSmooth <- renderPlotly({
+    data_kurs <- read_xlsx("C:/Users/Sofia/Downloads/kurs.xlsx")
+    scatter.smooth(x = data_kurs$Tanggal, y = data_kurs$Terakhir, type = 'o', pch=20, 
+                   lpars = list(col = 'red', lwd = 2), 
+                   main = 'Kurs Rupiah Terhadap Dollar',
+                   xlab = 'Tahun',
+                   ylab = 'Kurs')
+    
+  })
+    
+    # Third tab
+    # -------------- Forecast Plot
+    
+  # Third tab
+  # -------------- Forecast Plot
+  
+  output$trendPlot <- renderPlot({
+    kurs <- read_xlsx("C:/Users/Lenovo/Documents/IPB/fix/Eksplorasi dan Visualisasi Data/kurs.xlsx")
+    kurs <- kurs[c("Tanggal", "Terakhir")]
+    kurs$Tanggal <- as.Date(kurs$Tanggal)
+    
+    require(gridExtra)
+    t1 <- autoplot(ts(kurs[input$n[1]:input$n[2], "Terakhir"])) +
+      ggtitle("Data Kurs Rupiah Terhadap Dollar")
+    
+    end = dim(kurs)[1]
+    start = end - 100
+    
+    mod <- auto.arima(kurs[start : end, "Terakhir"])
+    data <- forecast(mod, arm = input$arm)
+    t2 <- autoplot(forecast(mod, arm = input$arm)) + 
+      ggtitle("Meramalkan data 10 periode kedepan berdasarkan data 100 periode sebelumnya")
+    
+    grid.arrange(t1, t2, ncol=1)
+  })
+  
+})
