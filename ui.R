@@ -43,9 +43,15 @@ shinyUI(navbarPage(
         tags$li("Data Random (fluktuatif tak beraturan)"),
         tags$p("Fluktuasi acak dalam data yang tidak dapat dijelaskan oleh tren, musiman, atau siklus. Fluktuasi ini bisa disebabkan oleh faktor-faktor acak atau faktor tak terduga lainnya."),
         tags$p("Contoh data random adalah inflasi, harga jual saham dan harga emas.")
-        ),
-    )
-  ),
+        )
+    ),
+    fluidRow(
+      tags$br(),
+      tags$h2("ARIMA (Autoregresiive Integrated Moving Average"),
+      tags$p("ARIMA sering juga disebut metode Box-Jenkins. ARIMA sangat baik ketepatannya untuk peramalan jangka pendek, sedangkan untuk peramalan jangka panjang ketepatan peramalannya kurang baik. Biasanya akan cenderung  flat (mendatar /konstan) untuk periode yang cukup panjang. Model Autoregresiive Integrated Moving Average (ARIMA) adalah model yang secara penuh mengabaikan peubah bebas dalam membuat peramalan. ARIMA menggunakan nilai masa lalu dan sekarang dari variabel dependen untuk menghasilkan peramalan jangka pendek yang akurat. ARIMA cocok jika observasi dari deret waktu (timeseries) secara statistik berhubungan satu sama lain (dependent). Tujuan model ARIMA adalah untuk menentukan hubungan statistik yang baik antar variabel yang diramal dengan nilai historis variabel tersebut sehingga peramalan dapat dilakukan dengan model tersebut.   Model ARIMA sendiri hanya menggunakan suatu variabel (univariate) deret waktu. Hal yang perlu diperhatikan adalah bahwa kebanyakan deret berkala bersifat non-stasioner dan bahwa aspek-aspek AR dan MA dari model ARIMA hanya berkenaan dengan deret berkala yang stasioner.vStasioneritas berarti tidak terdapat pertumbuhan atau penurunan pada data. Data secara kasarnya harus horizontal sepanjang sumbu waktu. Dengan kata lain, fluktuasi data berada di sekitar suatu nilai rata-rata yang konstan, tidak tergantung pada waktu dan varians dari fluktuasi tersebut pada pokoknya tetap konstan setiap waktu. Suatu deret waktu yang tidak stasioner harus diubah menjadi data stasioner dengan melakukan differencing. Yang dimaksud dengan differencing adalah menghitung perubahan atau selisih nilai observasi. Nilai selisih yang diperoleh dicek lagi apakah stasioner atau tidak. Jika belum stasioner maka dilakukan differencing lagi. Jika varians tidak stasioner, maka dilakukan transformasi logaritma."),
+      tags$p("Tujuan model ARIMA adalah untuk menentukan hubungan statistik yang baik antar variabel yang diramal dengan nilai historis variabel tersebut sehingga peramalan dapat dilakukan dengan model tersebut.   Model ARIMA sendiri hanya menggunakan suatu variabel (univariate) deret waktu. Hal yang perlu diperhatikan adalah bahwa kebanyakan deret berkala bersifat non-stasioner dan bahwa aspek-aspek AR dan MA dari model ARIMA hanya berkenaan dengan deret berkala yang stasioner.vStasioneritas berarti tidak terdapat pertumbuhan atau penurunan pada data. Data secara kasarnya harus horizontal sepanjang sumbu waktu. Dengan kata lain, fluktuasi data berada di sekitar suatu nilai rata-rata yang konstan, tidak tergantung pada waktu dan varians dari fluktuasi tersebut pada pokoknya tetap konstan setiap waktu. Suatu deret waktu yang tidak stasioner harus diubah menjadi data stasioner dengan melakukan differencing. Yang dimaksud dengan differencing adalah menghitung perubahan atau selisih nilai observasi. Nilai selisih yang diperoleh dicek lagi apakah stasioner atau tidak. Jika belum stasioner maka dilakukan differencing lagi. Jika varians tidak stasioner, maka dilakukan transformasi logaritma.")
+    ),
+    ),
   # second tab panel
   tabPanel("Time Series Plot",
            # Sidebar inputs
@@ -55,7 +61,7 @@ shinyUI(navbarPage(
                  column(6, selectInput(inputId = "data", label = "Pilih Data",
                                        choices = c("Masukan Mandiri", 
                                                    "Contoh Dataset")),
-                        ),
+                 ),
                  #Upload File
                  column(6, conditionalPanel(
                    condition = "input.data == 'Masukkan Mandiri'",
@@ -70,7 +76,7 @@ shinyUI(navbarPage(
                #  tableOutput("uploadData"),
                
                # ------ Display Table ------ #                      
-
+               
                
                # ------ Set Used Variables ------ #
                fluidRow(
@@ -78,21 +84,21 @@ shinyUI(navbarPage(
                  column(6, uiOutput('dv'))  # Set Y-Variable
                ),
                
-
+               
                # ----- Pilih Pola Data
                selectInput("tipe", label = "Jenis Pola data", 
                            choices = c("Data Trend", "Data Musiman", "Data Siklus","Data Fluktuatif" )),
                sliderInput("slider.n", label = "Smooth Trend", min = 1, max = 50, value = 30)
              ),
-
+             
              mainPanel(
                plotlyOutput("myPlot"),
                plotlyOutput("uploadData")
              )
            )
   ),
-
-# third tab panel
+  
+  # third tab panel
   tabPanel("Forecast Plot",
            sidebarLayout(
              sidebarPanel(
